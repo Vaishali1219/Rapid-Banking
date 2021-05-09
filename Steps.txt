@@ -1,0 +1,39 @@
+CREATING A LMS-
+
+START THE PROJECT -- npm init
+
+STEP :- DATABASE AND MODELING
+
+1) Install monogodb driver -- npm i mongodb
+2) Create a new file -- mongodb.js
+3) Create a connection to Mongodb
+4) Create mongodb.js file with connection code
+5) Create src -> db -> mongoose.js
+6) Install mongoose -- npm i mongoose
+7) Create the models - users, tasks
+
+DATA VALIDATION AND SANITIZATION
+
+8) Install validator -- npm i validator
+9) Use in built validators of mongoose and userdefined validators from validator lib
+10) Create models -> user.js or user.model.js and add User Model (import mongoose, validator)
+11) Setup connection url in src/db/mongoose.js
+
+STEP:- REST API End points
+
+1) Install express -- npm i express
+2) Add new file -> src/index.js
+3) import express
+4) Add DB config path
+5) Add Models config path
+6) Start express app -- const app = new Express(); const port = process.env.PORT || 3000
+7) Declare Middleware
+8) Define Routes (REST Endpoints)
+9) Setup server
+10) Test in Postman
+11) Split Routes and define in sep files -> src/routers/task, user
+
+
+
+
+
