@@ -1,12 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\config",
     "\\src",
     "\\src\\db",
     "\\src\\emails",
     "\\src\\models",
     "\\src\\routers"
   ],
-  "SelectedNode": "\\src\\routers\\account.js",
+  "SelectedNode": "\\config\\dev.env",
   "PreviewInSolutionExplorer": false
 }
