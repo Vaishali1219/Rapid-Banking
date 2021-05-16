@@ -100,7 +100,8 @@ router.get('/get-customer', async (req, res) => {
             const customer = await Customer.findOne({ $or: [{ email: val }, { phone: val }] })
             console.log(customer)
             return res.status(200).json({
-                id: customer._id
+                id: customer._id,
+				customer: customer
             })
         }
     } catch (e) {
