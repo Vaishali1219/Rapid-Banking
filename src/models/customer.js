@@ -3,10 +3,6 @@ const validator = require('validator')
 const Account = require('../models/account')
 
 const customerSchema = new mongoose.Schema({
-    //cust_id: {
-    //    type: Number,
-    //    unique: true
-    //},
     first_name: {
         type: String,
         required: true,

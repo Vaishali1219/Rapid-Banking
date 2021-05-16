@@ -1,13 +1,12 @@
 {
   "ExpandedNodes": [
     "",
-    "\\config",
     "\\src",
     "\\src\\db",
     "\\src\\emails",
     "\\src\\models",
     "\\src\\routers"
   ],
-  "SelectedNode": "\\config\\dev.env",
+  "SelectedNode": "\\.gitignore",
   "PreviewInSolutionExplorer": false
 }

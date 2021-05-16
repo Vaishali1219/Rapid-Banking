@@ -84,17 +84,17 @@ router.get('/get-customer', async (req, res) => {
 
         var val = null
 
-        if (req.body.accountNumber) {
-            const account = await Account.findOne({ accountNumber: req.body.accountNumber })
+        if (req.query.accountNumber) {
+            const account = await Account.findOne({ accountNumber: req.query.accountNumber })
             const customer_id = account.customer
             return res.status(200).json({
                 id: customer_id
             })
         } else {
-            if (req.body.email) {
-                val = req.body.email
+            if (req.query.email) {
+                val = req.query.email
             } else {
-                val = req.body.phone
+                val = req.query.phone
             }
 
             const customer = await Customer.findOne({ $or: [{ email: val }, { phone: val }] })
