@@ -17,7 +17,7 @@ const accountRouter = require('./routers/account')
 
 // Config
 const app = express();
-app.use(cors());s
+app.use(cors());
 const port = process.env.PORT
 
 app.use((req, res, next) => {
