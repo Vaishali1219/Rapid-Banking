@@ -3,6 +3,7 @@ const path = require('path')
 const debug = require("debug")("node-angular");
 const http = require("http");
 const bodyParser = require("body-parser");
+const cors = require('cors')
 
 // DB config files
 require('./db/mongoose')
@@ -15,7 +16,8 @@ const accountRouter = require('./routers/account')
 
 
 // Config
-const app = express()
+const app = express();
+app.use(cors());s
 const port = process.env.PORT
 
 app.use((req, res, next) => {
