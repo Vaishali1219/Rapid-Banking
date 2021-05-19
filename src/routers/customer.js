@@ -205,6 +205,7 @@ router.delete('/customers/:id/photo', async (req, res) => {
     customer.photo = undefined
     await customer.save()
   res.json({
+	"msg": "Customer Photo Deleted Successfully!!!",
     customer: customer
   })
 })
