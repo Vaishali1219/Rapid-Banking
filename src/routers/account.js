@@ -7,9 +7,9 @@ const router = new express.Router()
 
 //-------------------------TASK ROUTER FOR INSTRUCTORS----------------------------------------------
 
-router.post('/create-account', async (req, res) => {
+router.post('/create-account/:id', async (req, res) => {
     try {
-        const customer = await Customer.findById(req.body.id)
+        const customer = await Customer.findById(req.params.id)
         const category_code = req.body.category.code
         const category_desc = req.body.category.desc
         const balance = req.body.balance
