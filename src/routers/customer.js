@@ -32,7 +32,6 @@ router.post('/register', async (req, res) => {
         if (e.keyValue.phone) {
             msg = "Phone No already enrolled"
         } else if (e.keyValue.email) {
-            console.log(e.keyValue.email)
             msg = "Email already enrolled"
         } else if ((e.keyValue.email) && (e.keyValue.phone)) {
             msg = "Email and Phone No already enrolled"
@@ -86,10 +85,15 @@ router.get('/get-customer', async (req, res) => {
 
         if (req.query.accountNumber) {
             const account = await Account.findOne({ accountNumber: req.query.accountNumber })
-            const customer_id = account.customer
-            return res.status(200).json({
-                id: customer_id
+			if (account){
+				const customer_id = account.customer
+				const cust = await Customer.findById(customer_id)
+				return res.status(200).json({
+                id: customer_id,
+				customer: cust
             })
+			}
+			
         } else {
             if (req.query.email) {
                 val = req.query.email
@@ -98,7 +102,6 @@ router.get('/get-customer', async (req, res) => {
             }
 
             const customer = await Customer.findOne({ $or: [{ email: val }, { phone: val }] })
-            console.log(customer)
             return res.status(200).json({
                 id: customer._id,
 				customer: customer

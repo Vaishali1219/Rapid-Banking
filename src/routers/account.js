@@ -14,7 +14,7 @@ router.post('/create-account/:id', async (req, res) => {
         const category_desc = req.body.category.desc
         const balance = req.body.balance
         const checkStatus = await customer.checkAccounts(req.params.id, category_code, category_desc, balance)
-        console.log(checkStatus)
+	
         sendAccountOpenEmail(checkStatus.email, checkStatus.firstname, checkStatus.lastname, checkStatus.account_number, checkStatus.category_desc, checkStatus.balance)
         res.status(201).json({
             msg: "Account opened successfully",
@@ -23,9 +23,10 @@ router.post('/create-account/:id', async (req, res) => {
             account_type: checkStatus.category_desc
       })
     } catch (e) {
+		var error = "User already has an account in " + req.body.category.desc
         res.status(400).json({
           //error: e
-            error: `User already has an account in ${category}`
+            error: error
       })
     }
 })
@@ -58,9 +59,7 @@ router.get('/customer-accounts/:id', async (req, res) => {
 
       console.log(accounts.accounts)
       for (x in accounts.accounts) {
-          //console.log(accounts.accounts[x].account_number)
           var temp = await Account.find({ accountNumber: accounts.accounts[x].account_number })
-          //console.log(temp)
           customer_accounts.push(temp)
       }
 
@@ -80,19 +79,19 @@ router.get('/customer-accounts/:id', async (req, res) => {
 })
 
 router.get('/account', async (req, res) => {
-    const accountNumber = req.body.accountNumber
+    const accountNumber = parseInt(req.query.accountNumber)
 
     try {
         const account = await Account.findOne({ accountNumber: accountNumber })
-
+		const customer = await Customer.findById(account.customer)
         if (!account) {
           return res.status(404).json({
             error: "Not Found"
           })
         }
-
       res.status(200).json({
-        account: account
+        account: account,
+		customer: customer
       })
     } catch (e) {
         res.status(500).json({
@@ -192,15 +191,15 @@ router.patch('/fund-transfer', async (req, res) => {
         if (transferFunds) {
             const c1 = await Customer.findById(transferFunds.c1)
             const c2 = await Customer.findById(transferFunds.c2)
-            sendDebitAlertEmail(c1.email, c1.firstname, c1.lastname, ac1, transferFunds.a_cat_1, amount)
-            sendCreditAlertEmail(c2.email, c2.firstname, c2.lastname, ac2, transferFunds.a_cat_2, amount)
+            sendDebitAlertEmail(c1.email, c1.first_name, c1.last_name, ac1.accountNumber, transferFunds.a_cat_1.cat_desc, amount)
+            sendCreditAlertEmail(c2.email, c2.first_name, c2.last_name, ac2.accountNumber, transferFunds.a_cat_2.cat_desc, amount)
             res.status(200).json({
                 msg: "Funds Transfered Successfully"
             })
         }
     } catch (e) {
         res.status(500).json({
-            error: e
+            error: e.error
             //e: "Insufficient Funds"
         })
     }

@@ -109,16 +109,14 @@ customerSchema.methods.checkAccounts = async (id, category_code, category_desc, 
     const accounts = customer.accounts
     
     accounts.forEach(function (x) {
-        console.log(x)
         if (x.account_cat == category_code) {
-            res.status(400).json({
-                error: `Customer already has an account in ${category_desc}`
+            return res.status(400).json({
+                error: category_desc
             })
-        } 
+        }
     })
-
+	
     const account_number = Math.floor(1000000000000 + Math.random() * 9000000000000);
-    console.log(account_number)
 
     const account = new Account({
         category: { cat_code: category_code, cat_desc: category_desc },
@@ -128,8 +126,6 @@ customerSchema.methods.checkAccounts = async (id, category_code, category_desc, 
     })
 
     const cust_accounts = await account.save()
-
-    console.log(cust_accounts)
 
     customer.accounts = customer.accounts.concat({
         account_number: cust_accounts.accountNumber,
@@ -143,11 +139,10 @@ customerSchema.methods.checkAccounts = async (id, category_code, category_desc, 
         email: email,
         firstname: firstname,
         lastname: lastname,
-        account_number: custaccounts.accountNumber,
+        account_number: account_number,
         category_desc: category_desc,
         balance: balance
     }
-
     return custDetails  
 } 
 

@@ -3,7 +3,7 @@ const path = require('path')
 const debug = require("debug")("node-angular");
 const http = require("http");
 const bodyParser = require("body-parser");
-const cors = require('cors')
+const cors = require('cors');
 
 // DB config files
 require('./db/mongoose')
@@ -20,18 +20,18 @@ const app = express();
 app.use(cors());
 const port = process.env.PORT
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PATCH, PUT, DELETE, OPTIONS"
-  );
-  next();
-});
+// app.use((req, res, next) => {
+  // res.setHeader("Access-Control-Allow-Origin", "*");
+  // res.setHeader(
+    // "Access-Control-Allow-Headers",
+    // "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  // );
+  // res.setHeader(
+    // "Access-Control-Allow-Methods",
+    // "GET, POST, PATCH, PUT, DELETE, OPTIONS"
+  // );
+  // next();
+// });
 
 //app.get('*', (req, res) => {
 //  res.status(400).json({

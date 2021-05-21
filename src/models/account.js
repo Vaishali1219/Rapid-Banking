@@ -23,11 +23,14 @@ const accountSchema = new mongoose.Schema({
     },
     transactions: [{
         transType: {
-            type: Boolean
-        },
+            type: Number        
+		},
         time: {
             type: Date
         },
+		amount:{
+			type: Number
+		},
         balanceAfter: {
             type: Number
         }
@@ -43,14 +46,6 @@ accountSchema.methods.toJSON = function () {
     return accountObject
 }
 
-//accountSchema.methods.createAccount = async function (category_code, category_desc, id, balance) {
-    
-
-//    console.log(account)
-
-//    return account
-//}
-
 accountSchema.methods.makeTransaction = async function (ac1, ac2, amount) {
     const session = await Account.startSession();
     session.startTransaction();
@@ -58,53 +53,48 @@ accountSchema.methods.makeTransaction = async function (ac1, ac2, amount) {
     try {
         const opts = { session }
         const time = new Date();
-        console.log(ac1)
         const toAccount = await Account.findOne({ accountNumber: ac2 })
-        console.log(toAccount)
-        const toAccount_After_Balance = toAccount.balance + amount
+        const toAccount_After_Balance = parseInt(toAccount.balance) + parseInt(amount)
         const toAccount_transtype = 1
         const toAccount_transactions = {
             transType: toAccount_transtype,
             time: time,
-            balanceAfter: toAccount_After_Balance
+			amount: amount,
+            balanceAfter: parseInt(toAccount_After_Balance)
         }
-        console.log(toAccount_transactions)
-        //await toAccount.updateOne({ accountNumber: ac2 }, { $addToSet: [{ balance: toAccount_After_Balance }, { transactions: toAccount_transactions }] }, opts)
-        //await toAccount.save()
 
-        toAccount.balance = toAccount_After_Balance
+        toAccount.balance = parseInt(toAccount_After_Balance)
         toAccount.transactions = toAccount.transactions.concat(toAccount_transactions)
         
 
         const fromAccount = await Account.findOne({ accountNumber: ac1 })
         if ((fromAccount.balance <= 0) | (fromAccount.balance < amount)) {
             await session.abortTransaction();
-            return res.status(500).json({
+            return res.status(400).json({
                 "error": "Insufficient Funds in the Account"
             })
         }
 
-        const fromAccount_After_Balance = fromAccount.balance - amount
+        const fromAccount_After_Balance = parseInt(fromAccount.balance) - parseInt(amount)
         const fromAccount_transtype = 0
         const fromAccount_transactions = {
             transType: fromAccount_transtype,
             time: time,
-            balanceAfter: fromAccount_After_Balance
+			amount: amount,
+            balanceAfter: parseInt(fromAccount_After_Balance)
         }
 
-        console.log(fromAccount_transactions)
-        //await fromAccount.updateOne({ accountNumber: ac1 }, { $addToSet: [{ balance: fromAccount_After_Balance }, { transactions: fromAccount_transactions }] }, opts)
-        //await fromAccount.save()
-
-        fromAccount.balance = fromAccount_After_Balance
-        fromAccount.transactions = fromAccount.transactions.concat(toAccount_transactions)
+        fromAccount.balance = parseInt(fromAccount_After_Balance)
+        fromAccount.transactions = fromAccount.transactions.concat(fromAccount_transactions)
         await fromAccount.save()
         await toAccount.save()
 
         await session.commitTransaction()
         await session.endSession()
+		
+		var msg = amount + " transfered successfully";
         return {
-            "msg": `${amount} transfered successfully`,
+            "msg": msg,
             c1: fromAccount.customer,
             c2: toAccount.customer,
             a_cat_1: fromAccount.category,
@@ -113,71 +103,7 @@ accountSchema.methods.makeTransaction = async function (ac1, ac2, amount) {
     } catch (e) {
         return res.status(500).send(e)
     }
-
-
-    //const session = await Account.startSession();
-    //const transactionOptions = {
-    //    readPreference: 'primary',
-    //    readConcern: { level: 'local' },
-    //    writeConcern: {w: 'majority'}
-    //};
-
-    //try {
-    //    const transactionResults = await session.withTransaction(async () => {
-    //        const time = new Date();
-    //        console.log(ac1)
-    //        const toAccount = await Account.findOne({ accountNumber: ac2 })
-    //        console.log(toAccount)
-    //        const toAccount_After_Balance = toAccount.balance + amount
-    //        const toAccount_transtype = 1
-    //        const toAccount_transactions = {
-    //            transType: toAccount_transtype,
-    //            time: time,
-    //            balanceAfter: toAccount_After_Balance
-    //        }
-    //        console.log(toAccount_transactions)
-    //        const toAccount_updateResults = await Account.updateOne({ accountNumber: ac2 }, { $addToSet: [{ balance: toAccount_After_Balance }, { transactions: toAccount_transactions }] }, { session })
-
-    //        const fromAccount = await Account.findOne({ accountNumber: ac1 })
-    //        if ((fromAccount.balace <= 0) | (fromAccount.balace < amount)) {
-    //            await (await session).abortTransaction();
-    //            return res.status(500).json({
-    //                "error": "Insufficient Funds in the Account"
-    //            })
-    //        }
-
-    //        const fromAccount_After_Balance = fromAccount.balance - amount
-    //        const fromAccount_transtype = 0
-    //        const fromAccount_transactions = {
-    //            transType: fromAccount_transtype,
-    //            time: time,
-    //            balanceAfter: fromAccount_After_Balance
-    //        }
-
-    //        const fromAccount_updateResults = await Account.updateOne({ accountNumber: ac1 }, { $addToSet: [{ balance: fromAccount_After_Balance }, { transactions: fromAccount_transactions }] }, { session })
-
-    //    }, transactionOptions)
-
-
-
-    //    if (transactionResults) {
-    //        return res.status(200).json({
-    //            "msg": `${amount} transfered successfully`,
-    //            c1: fromAccount.customer,
-    //            c2: toAccount.customer,
-    //            a_cat_1: fromAccount.category,
-    //            a_cat_2: toAccount.category
-    //        })
-    //    } else {
-    //        return res.status(500).send(e)
-    //    }
-    //} catch (e) {
-    //    return res.status(500).send(e)
-    //} finally {
-    //    await session.endSession()
-    //}
 }
-
 const Account = mongoose.model('Account', accountSchema)
 
 module.exports = Account
