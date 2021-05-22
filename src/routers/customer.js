@@ -161,6 +161,13 @@ router.delete('/customers/:id', async (req, res) => {
     const email = customer.email
     const first_name = customer.first_name
     const last_name = customer.last_name
+	const customer_accounts = customer.accounts
+	
+	for (ac in customer_accounts){
+		var ac_id = ac._id
+		var acc = await Account.findById(ac_id)
+		await acc.remove()
+	}
 
     try {
         await customer.remove()
