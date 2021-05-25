@@ -1,6 +1,7 @@
 const express = require('express')
 const Account = require('../models/account')
 const Customer = require('../models/customer')
+const Transaction = require('../models/transactionslog')
 
 const { sendAccountOpenEmail, sendDebitAlertEmail, sendCreditAlertEmail } = require('../emails/mails')
 const router = new express.Router()
@@ -25,7 +26,6 @@ router.post('/create-account/:id', async (req, res) => {
     } catch (e) {
 		var error = "User already has an account in " + req.body.category.desc
         res.status(400).json({
-          //error: e
             error: error
       })
     }
@@ -85,8 +85,8 @@ router.get('/account', async (req, res) => {
         const account = await Account.findOne({ accountNumber: accountNumber })
 		const customer = await Customer.findById(account.customer)
         if (!account) {
-          return res.status(404).json({
-            error: "Not Found"
+          return res.status(400).json({
+            error: "Account Not Found"
           })
         }
       res.status(200).json({
@@ -94,20 +94,26 @@ router.get('/account', async (req, res) => {
 		customer: customer
       })
     } catch (e) {
-        res.status(500).json({
-          error: e
-          //error: "Not Found"
+        res.status(400).json({
+          error: "Account Not Found"
       })
     }
 })
 
+router.get('/transaction-logs', async (req, res) => {
+	const trans = await Transaction.find({})
+	
+	res.status(200).json({
+		transactions: trans
+	})
+})
 
-router.delete('/account', async (req, res) => {
-    const accountNumber = req.body.accountNumber
+
+router.delete('/delete-account', async (req, res) => {
+    const accountNumber = parseInt(req.query.accountNumber)
 
     try {
-        const account = await Account.findOneAndDelete({ accountNumber: accountNumber })
-
+        const account = await Account.findOne({ accountNumber: accountNumber })
         if (!account) {
             return res.status(404).json({
                 error: "Not Found"
@@ -124,10 +130,11 @@ router.delete('/account', async (req, res) => {
         }
 
         await customer.save()
+		
+		await account.remove()
 
         res.status(200).json({
-            "msg": "Account Closed and Removed",
-            "customer": customer
+            "msg": "Account Closed and Removed"
         })
     } catch (e) {
         res.status(500).json({
@@ -198,9 +205,50 @@ router.patch('/fund-transfer', async (req, res) => {
             })
         }
     } catch (e) {
-        res.status(500).json({
-            error: e.error
-            //e: "Insufficient Funds"
+        res.status(400).json({
+            "msg" :"Insufficient Funds"
+        })
+    }
+})
+
+router.patch('/credit-amount', async (req, res) => {
+    const ac = await Account.findOne({ accountNumber: req.body.ac })
+    const amount = req.body.amount
+
+    try {
+        const creditAmount = await ac.makeCreditTransaction(ac.accountNumber, amount)
+
+        if (creditAmount) {
+            const c = await Customer.findById(creditAmount.c)
+            sendCreditAlertEmail(c.email, c.first_name, c.last_name, ac.accountNumber, creditAmount.a_cat.cat_desc, amount)
+            res.status(200).json({
+                msg: "Amount Credited Successfully"
+            })
+        }
+    } catch (e) {
+        res.status(400).json({
+            error: "Account Not Found"
+        })
+    }
+})
+
+router.patch('/debit-amount', async (req, res) => {
+    const ac = await Account.findOne({ accountNumber: req.body.ac })
+    const amount = req.body.amount
+
+    try {
+        const debitAmount = await ac.makeDebitTransaction(ac.accountNumber, amount)
+
+        if (debitAmount) {
+            const c = await Customer.findById(debitAmount.c)
+            sendDebitAlertEmail(c.email, c.first_name, c.last_name, ac.accountNumber, debitAmount.a_cat.cat_desc, amount)
+            res.status(200).json({
+                msg: "Amount Debited Successfully"
+            })
+        }
+    } catch (e) {
+        res.status(400).json({
+            error: "Insufficient Funds"
         })
     }
 })

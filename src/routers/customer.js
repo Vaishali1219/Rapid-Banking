@@ -21,7 +21,7 @@ router.post('/register', async (req, res) => {
 
     try {
         await customer.save()
-        sendWelcomeEmail(customer.email, customer.first_name, customer.last_name)
+        sendWelcomeEmail(customer.email, customer.first_name, customer.last_name, customer._id, customer.phone, customer.address, customer.city, customer.state, customer.country)
         res.status(201).json({
             msg: 'Customer Created!',
             customer: customer
@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
         }
 
         res.status(400).json({
-            msg: msg
+            error: msg
         })
     }
 })
@@ -72,7 +72,7 @@ router.get('/customers', async (req, res) => {
             customersCount: length
         })
     } catch (e) {
-        return res.status(500).json({
+        return res.status(400).json({
             error: e
         })
     }
@@ -109,7 +109,7 @@ router.get('/get-customer', async (req, res) => {
         }
     } catch (e) {
         res.status(400).json({
-            error: e
+            error: "Customer Not Found"
         })
     }
 })
@@ -156,16 +156,16 @@ router.patch('/customers/:id', async (req, res) => {
 
 // DELETE ACCOUNT ROUTES-
 
-router.delete('/customers/:id', async (req, res) => {
+router.delete('/delete-customers/:id', async (req, res) => {
     const customer = await Customer.findById(req.params.id)
     const email = customer.email
     const first_name = customer.first_name
     const last_name = customer.last_name
-	const customer_accounts = customer.accounts
 	
+	const customer_accounts = customer.accounts
 	for (ac in customer_accounts){
-		var ac_id = ac._id
-		var acc = await Account.findById(ac_id)
+		var ac_n = customer_accounts[ac].account_number
+		var acc = await Account.findOne({accountNumber: ac_n})
 		await acc.remove()
 	}
 
@@ -173,11 +173,11 @@ router.delete('/customers/:id', async (req, res) => {
         await customer.remove()
         sendCancelEmail(email, first_name, last_name)
         res.send({
-            msg: "Customer removed!!!"
+            msg: "Customer and Accounts removed!!!"
         })
     } catch (e) {
-        res.status(500).json({
-            e: e
+        res.status(400).json({
+            e: "Customet Not Found"
         })
     }
 })

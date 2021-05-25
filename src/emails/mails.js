@@ -3,12 +3,19 @@ const sendgridAPIKey = process.env.SENDGRID_API_KEY
 
 sgMail.setApiKey(sendgridAPIKey)
 
-const sendWelcomeEmail = (email, firstname, lastname) => {
+const sendWelcomeEmail = (email, firstname, lastname, id, phone, address, city, state, country) => {
     sgMail.send({
         to: email,
         from: 'vaishsvs12@gmail.com',
         subject: 'Thanks for joining in!',
-        text: `Welcome ${firstname} ${lastname}, to RetailEasy Bank`
+        text: `Welcome ${firstname} ${lastname}, to RetailEasy Bank. Please save the below details for future refernce.
+		
+				CustomerId: ${id}
+				Registered Phone No: ${phone}
+				Address: ${address}
+				City: ${city}
+				State: ${state}
+				Country: ${country}`
     })
 }
 
